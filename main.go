@@ -6,6 +6,7 @@ package main
 
 import (
 	"encoding/csv"
+	"strings"
 	"errors"
 	"flag"
 	"fmt"
@@ -16,7 +17,7 @@ import (
 	"github.com/tealeg/xlsx/v3"
 )
 
-func generateCSVFromXLSXFile(w io.Writer, excelFileName string, sheetIndex int, csvOpts csvOptSetter) error {
+func generateCSVFromXLSXFile(w io.Writer, excelFileName string, sheetIndex int, delimiter string, csvOpts csvOptSetter) error {
 	xlFile, err := xlsx.OpenFile(excelFileName)
 	if err != nil {
 		return err
@@ -39,6 +40,8 @@ func generateCSVFromXLSXFile(w io.Writer, excelFileName string, sheetIndex int, 
 			vals = vals[:0]
 			err := row.ForEachCell(func(cell *xlsx.Cell) error {
 				str, err := cell.FormattedValue()
+				str = strings.Replace(str, delimiter, "_sys_temp_delimiter_temp_sys_", -1)
+				str = strings.Replace(str, "\n",      "_sys_temp_newline_temp_sys_",   -1)
 				if err != nil {
 					return err
 				}
@@ -96,7 +99,7 @@ Usage:
 		}
 	}()
 
-	if err := generateCSVFromXLSXFile(out, flag.Arg(0), *sheetIndex,
+	if err := generateCSVFromXLSXFile(out, flag.Arg(0), *sheetIndex, *delimiter,
 		func(cw *csv.Writer) { cw.Comma = ([]rune(*delimiter))[0] },
 	); err != nil {
 		log.Fatal(err)
