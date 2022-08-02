@@ -42,6 +42,7 @@ func generateCSVFromXLSXFile(w io.Writer, excelFileName string, sheetIndex int, 
 				str, err := cell.FormattedValue()
 				str = strings.Replace(str, delimiter, "_sys_temp_delimiter_temp_sys_", -1)
 				str = strings.Replace(str, "\n",      "_sys_temp_newline_temp_sys_",   -1)
+				str = strings.Replace(str, "\r",      "",   -1)
 				if err != nil {
 					return err
 				}
